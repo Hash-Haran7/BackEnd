@@ -2,7 +2,7 @@
 import os
 from google.adk import Agent
 from google.adk.tools import FunctionTool
-from tools import (
+from .tools import (
     get_weather,
     query_document,
     execute_sql,
@@ -123,3 +123,6 @@ root_agent = Agent(
     
     For meeting scheduling, follow the workflow: check weather → check conflicts → schedule if conditions are met."""
 )
+
+# Alias for ADK
+agent = root_agent

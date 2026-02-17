@@ -1,0 +1,3 @@
+name: Supervisor
+agent_module: agent
+agent_variable: root_agent

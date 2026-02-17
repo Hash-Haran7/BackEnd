@@ -1,4 +1,9 @@
 """Tools for the ADK agents - Weather, Document RAG, SQL, and Search."""
+import warnings
+# Suppress the noise from google.generativeai deprecation to prevent ADK UI issues
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", module="google.generativeai")
+
 import os
 import requests
 from typing import Dict, Any, List, Optional
@@ -11,7 +16,10 @@ from dotenv import load_dotenv
 # This avoids embedding compatibility issues and uses only Gemini API key
 
 # Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file in the same directory
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
 
 # Database connection (Supabase Session Pooler; password @ encoded as %40)
 DATABASE_URL = os.getenv(
@@ -74,17 +82,17 @@ def query_document(query: str) -> str:
     if not GEMINI_API_KEY:
         return "Error: GEMINI_API_KEY not set. Please configure it in your .env file."
     
-    data_dir = "./data"
-    if not os.path.exists(data_dir):
-        return "Error: /data folder not found. Please ensure resume.pdf is in the /data folder."
+    data_dir = BASE_DIR / ".data"
+    if not data_dir.exists():
+        return f"Error: {data_dir} folder not found. Please ensure resume.pdf is in the .data folder."
     
     try:
         # Find PDF files in data directory
         pdf_files = [f for f in os.listdir(data_dir) if f.lower().endswith('.pdf')]
         if not pdf_files:
-            return "Error: No PDF files found in /data folder. Please ensure resume.pdf exists."
+            return f"Error: No PDF files found in {data_dir} folder. Please ensure resume.pdf exists."
         
-        pdf_path = os.path.join(data_dir, pdf_files[0])
+        pdf_path = data_dir / pdf_files[0]
         
         # Use Gemini API directly to read and query the PDF
         genai.configure(api_key=GEMINI_API_KEY)
